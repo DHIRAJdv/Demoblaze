@@ -7,7 +7,7 @@ import org.testng.annotations.Test;
 
 public class AuthTest extends BaseTest {
 
-    String username = "Dhirajsri";
+    String username = "Dhiraj123789";
     String password = "12345678";
 
     @Test(priority = 1)
