@@ -1,10 +1,8 @@
 package com.krct.tests;
 
 import com.krct.BaseTest;
-import com.krct.pages.LoginModalPage;
 import com.krct.pages.ProductDetailPage;
 import org.testng.Assert;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class ProductTest extends BaseTest {
