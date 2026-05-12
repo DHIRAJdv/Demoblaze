@@ -1,5 +1,7 @@
 package com.krct;
 
+import org.testng.annotations.Listeners;
+import com.krct.reports.TestListener;
 import com.krct.utils.ConfigReader;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.apache.commons.io.FileUtils;
@@ -11,105 +13,55 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
-
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.Date;
 
+@Listeners(TestListener.class)
 public class BaseTest {
 
     public WebDriver driver;
 
     @BeforeMethod
     public void setup() {
-
-        String browser =
-                ConfigReader.getBrowser();
-
+        String browser = ConfigReader.getBrowser();
         if (browser.equalsIgnoreCase("chrome")) {
-
             WebDriverManager.chromedriver().setup();
-
             driver = new ChromeDriver();
         }
 
         else if (browser.equalsIgnoreCase("firefox")) {
-
             WebDriverManager.firefoxdriver().setup();
-
             driver = new FirefoxDriver();
         }
 
-        driver.manage().window().maximize();
-
-        driver.manage().timeouts().implicitlyWait(
-                Duration.ofSeconds(
-                        ConfigReader.getTimeout()
-                )
-        );
-
-        driver.get(
-                ConfigReader.getBaseUrl()
-        );
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(ConfigReader.getTimeout()));
+        driver.get(ConfigReader.getBaseUrl());
     }
 
     @AfterMethod
-    public void tearDown(
-            ITestResult result
-    ) {
-
-        if (ITestResult.FAILURE ==
-                result.getStatus()) {
-
-            takeScreenshot(
-                    result.getName()
-            );
+    public void tearDown(ITestResult result) {
+        if (ITestResult.FAILURE == result.getStatus()) {
+            takeScreenshot(result.getName());
         }
 
         if (driver != null) {
-
             driver.quit();
         }
     }
 
-    public void takeScreenshot(
-            String testName
-    ) {
-
-        String timestamp =
-                new SimpleDateFormat(
-                        "yyyyMMdd_HHmmss"
-                ).format(new Date());
-
-        File src =
-                ((TakesScreenshot) driver)
-                        .getScreenshotAs(
-                                OutputType.FILE
-                        );
-
-        String path =
-                "screenshots/"
-                        + testName
-                        + "_"
-                        + timestamp
-                        + ".png";
-
+    public void takeScreenshot(String testName) {
+        TakesScreenshot ts = (TakesScreenshot) driver;
+        File src = ts.getScreenshotAs(OutputType.FILE);
+        File dest = new File("screenshots/" + testName + ".png");
         try {
-
-            FileUtils.copyFile(
-                    src,
-                    new File(path)
-            );
-
-            System.out.println(
-                    "Screenshot saved: "
-                            + path
-            );
+            FileUtils.copyFile(src, dest);
+            System.out.println("Screenshot Taken");
         }
-
-        catch (IOException e) {e.printStackTrace();
+        catch (IOException e) {
+            System.out.println("Screenshot Failed");
         }
     }
 }
